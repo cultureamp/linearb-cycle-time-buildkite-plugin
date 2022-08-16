@@ -9,9 +9,10 @@ A [Buildkite plugin](https://buildkite.com/docs/agent/plugins) to record [Deploy
 Add the following to your `pipeline.yaml`:
 
 ```yml
-  - name: "linearb: record deployment"
+  - label: Record deployment time to linearb
+    command: bin/ci_noop
     plugins:
-      - cultureamp/linearb-cycle-time#v1.0.0:
+      - cultureamp/linearb-cycle-time#v1.0.0: ~
 ```
 
 To record the deploy time the [LinearB API](https://linearb.helpdocs.io/article/z4jn2k1mdj-multi-stage-delivery-api) requires the following properties:
@@ -23,7 +24,8 @@ To record the deploy time the [LinearB API](https://linearb.helpdocs.io/article/
 These values are pulled from BUILDKITE env vars or parameter store although, if you prefer some can be set directly as follows:
 
 ```yml
-  - name: "linearb: record deployment"
+  - label: "linearb: record deployment time to linearb"
+    command: bin/ci_noop
     plugins:
       - cultureamp/linearb-cycle-time#v1.0.0:
           api_key_ssm_param_name: "foo/bar/key"
