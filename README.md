@@ -1,55 +1,36 @@
-AWS AssumeRole Buildkite Plugin
+LinearB Cycle Time Buildkite Plugin
 ===============================
 
-A [Buildkite plugin](https://buildkite.com/docs/agent/plugins) to create a [New Relic deployment marker](https://docs.newrelic.com/docs/apm/new-relic-apm/maintenance/record-deployments#post-deployment).
+A [Buildkite plugin](https://buildkite.com/docs/agent/plugins) to record [Deploy time](https://linearb.helpdocs.io/article/v9pckvmkbj-cycle-time) to linearB.
 
 
-Example
--------
+## Example
+
+Add the following to your `pipeline.yaml`:
 
 ```yml
-  - name: "Deploy Production"
-    command: 'bin/ci_deploy'
-  
-  - wait
-
-  - name: "Deployment marker"
+  - name: "linearb: record deployment"
     plugins:
-      - cultureamp/newrelic-deploy-marker:
-          app_id: 123456789
+      - cultureamp/linearb-cycle-time#v1.0.0:
 ```
 
-The New Relic API key can be read from an environment variable `NEW_RELIC_API_KEY` or by using the plugin property `api_key`. The key can also be retrieved from SSM Parameter by creating an entry as `/NEWRELIC_API_KEY`, setting the plugin property `api_key_ssm_param_name` will override the parameter name.
+To record the deploy time the [LinearB API](https://linearb.helpdocs.io/article/z4jn2k1mdj-multi-stage-delivery-api) requires the following properties:
+- an api key
+- event time  (epoch)
+- sha
+- repo url in the format `https://github.com/org/repo.git`
 
-Options
--------
+These values are pulled from BUILDKITE env vars or parameter store although, if you prefer some can be set directly as follows:
 
-### `app_id`
-
-The New Relic application ID. To locate the app ID from the New Relic UI:
-
-1. Go to rpm.newrelic.com/apm  > (select an app).
-2. In the URL bar, copy the number after the /applications/ section of the URL
-
-### `api_key` (optional)
-
-The New Relic REST API key.
-
-### `api_key_ssm_param_name` (optional)
-
-New Relic REST API key parameter name in AWS SSM. Defaults to `NEWRELIC_API_KEY`.
-
-### `description` (optional)
-
-A high-level description of this deployment, visible in the Overview page and on the Deployments page when you select an individual deployment. Default `BUILDKITE_MESSAGE` (usually the commit message).
-
-### `user` (optional)
-
-A username to associate with the deployment, visible in the Overview page and on the Deployments page.
+```yml
+  - name: "linearb: record deployment"
+    plugins:
+      - cultureamp/linearb-cycle-time#v1.0.0:
+          api_key_ssm_param_name: "foo/bar/key"
+          repo: "https://github.com/org/repo.git"
+          sha: "abcdef..."
+```     
 
 
-References
-----------
 
-* [Record a deployment with POST](https://docs.newrelic.com/docs/apm/new-relic-apm/maintenance/record-deployments#post-deployment)
-* [Find the New Relic product ID](https://docs.newrelic.com/docs/apis/rest-api-v2/requirements/find-product-id#apm)
+
