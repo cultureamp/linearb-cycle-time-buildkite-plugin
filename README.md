@@ -34,7 +34,7 @@ To record the time at which code is deployed, the [linearB API](https://linearb.
 - an api key
 - event time  (epoch)
 - sha
-- repo url in the format `https://github.com/org/repo.git`
+- repo url (in the format `https://github.com/org/repo.git`)
 
 Whilst the plugin is able to pull these values from Buildkite environment variables and parameter store, should it be required, these values can be overridden as follows:
 
