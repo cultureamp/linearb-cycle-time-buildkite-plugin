@@ -35,7 +35,7 @@ To record the deploy time the [LinearB API](https://linearb.helpdocs.io/article/
 - sha
 - repo url in the format `https://github.com/org/repo.git`
 
-The plugin is able to pull values from Buildkite environment variables and parameter store. If you prefer, these can be overridden as follows:
+The plugin is able to pull these values from Buildkite environment variables and parameter store. Should it be required, these values can be overridden as follows:
 
 ```yml
   - label: "linearb: record deployment time to linearb"
