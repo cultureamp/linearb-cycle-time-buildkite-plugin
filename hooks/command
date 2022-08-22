@@ -43,10 +43,12 @@ record_deploy_time() {
     -d "$json" \
   )
 
-  if [[ $status_code -lt 200 ]] && [[ $status_code -gt 299 ]]; then
+  if [[ $status_code -lt 200 ]] || [[ $status_code -gt 299 ]]; then
     echo "--- :linearb: Deploy time recording failed with status code ${status_code}"
     exit 1
   fi
+  
+  echo "--- :linearb: deploy time recorded successfully. API request status code: ${status_code}"
 }
 
 record_deploy_time
