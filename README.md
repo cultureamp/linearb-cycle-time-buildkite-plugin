@@ -29,6 +29,7 @@ Keep in mind that you only want to call the linearB API once and your pipeline m
       - cultureamp/linearb-cycle-time#v1.0.0: ~
 ```
 
+### Modifying the default values (likely not required for most users)
 
 To record the time at which code is deployed, the [linearB API](https://linearb.helpdocs.io/article/z4jn2k1mdj-multi-stage-delivery-api) requires the following properties:
 - an api key
