@@ -9,22 +9,22 @@ record_deploy_time() {
   repo_url=${tmp2/git@/https:\/\/}
   
   # user provided repo takes precendence over BUILDKITE_REPO
-  repo="${BUILDKITE_PLUGIN_LINEARB_DEPLOY_TIME_REPO:-${repo_url:-}}"
+  repo="${BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_REPO:-${repo_url:-}}"
 
   # api can be provided, if it is not we try to retrieve from parameter store
-  api_key="${BUILDKITE_PLUGIN_LINEARB_DEPLOY_TIME_API_KEY:-}"
+  api_key="${BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_API_KEY:-}"
   
   # git commit sha
-  sha="${BUILDKITE_PLUGIN_LINEARB_DEPLOY_TIME_COMMIT:-${BUILDKITE_COMMIT:-}}"
+  sha="${BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_COMMIT:-${BUILDKITE_COMMIT:-}}"
 
   echo "--- :linearb: deploy time being recorded for repo: ${repo} sha: ${sha}"
 
   # If the api key is provided use it, otherwise try to retrieve it from parameter store
   if [ -z "$api_key" ]; then
-    ssm_param_name=${BUILDKITE_PLUGIN_LINEARB_DEPLOY_TIME_API_KEY_SSM_PARAM_NAME:-"/infrastructure/linearb-api-token"}
+    ssm_param_name=${BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_API_KEY_SSM_PARAM_NAME:-"/infrastructure/linearb-api-token"}
     api_key=$(aws ssm get-parameter --with-decryption --name "$ssm_param_name" --query=Parameter.Value --output=text)
   else
-    api_key=$BUILDKITE_PLUGIN_LINEARB_DEPLOY_TIME_API_KEY
+    api_key=$BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_API_KEY
   fi
 
   event_time=$(date +%s)
