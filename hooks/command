@@ -36,6 +36,8 @@ record_deploy_time() {
     --arg sha "$sha" \
     '{event_time: $event_time, repo_url: $repo_url, stage_id: $stage_id, head_sha: $sha}')  
 
+  echo "--- :linearb: request payload: ${json}"
+
   status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null \
     -X POST "https://public-api.linearb.io/api/v1/cycle-time-stages" \
     -H "X-Api-Key:${api_key}" -i \
