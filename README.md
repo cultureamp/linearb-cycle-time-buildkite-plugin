@@ -24,7 +24,7 @@ Keep in mind that you only want to call the linearB API once and your pipeline m
       - prod_us_deployed
       - prod_eu_deployed
     command: bin/ci_noop
-    branch: main
+    branches: [main]
     plugins:
       - cultureamp/linearb-cycle-time#v1.1.1: ~
 ```
