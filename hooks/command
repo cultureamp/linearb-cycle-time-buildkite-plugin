@@ -27,19 +27,15 @@ record_deploy_time() {
     api_key=$BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_API_KEY
   fi
 
-  event_time=$(date +%s)
-
   json=$(jq -n \
-    --argjson event_time "$event_time" \
-    --arg stage_id "release" \
     --arg repo_url "$repo" \
     --arg sha "$sha" \
-    '{event_time: $event_time, repo_url: $repo_url, stage_id: $stage_id, head_sha: $sha}')  
+    '{repo_url: $repo_url, ref_name: $sha}')  
 
   echo "--- :linearb: request payload: ${json}"
 
   status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null \
-    -X POST "https://public-api.linearb.io/api/v1/cycle-time-stages" \
+    -X POST "https://public-api.linearb.io/api/v1/deployments" \
     -H "X-Api-Key:${api_key}" -i \
     -H "Content-Type: application/json" \
     -d "$json" \
