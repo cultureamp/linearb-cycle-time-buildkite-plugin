@@ -13,7 +13,7 @@ Add the following to your `pipeline.yaml`:
   - label: "linearB: record the time of deployment"
     command: bin/ci_noop
     plugins:
-      - cultureamp/linearb-cycle-time#v1.1.1: ~
+      - cultureamp/linearb-cycle-time#v1.1.2: ~
 ```
 
 Keep in mind that you only want to call the linearB API once and your pipeline may include multiple production deploys (US, EU). You will likely need to restrict when this plugin executes. This will depend on how the pipeline has been structured but may include branch and/or step dependencies as illustrated below:
@@ -26,7 +26,7 @@ Keep in mind that you only want to call the linearB API once and your pipeline m
     command: bin/ci_noop
     branches: [main]
     plugins:
-      - cultureamp/linearb-cycle-time#v1.1.1: ~
+      - cultureamp/linearb-cycle-time#v1.1.2: ~
 ```
 
 ### Modifying the default values (likely not required for most users)
@@ -43,7 +43,7 @@ Whilst the plugin is able to pull these values from Buildkite environment variab
   - label: "linearB: record the time of deployment"
     command: bin/ci_noop
     plugins:
-      - cultureamp/linearb-cycle-time#v1.1.1:
+      - cultureamp/linearb-cycle-time#v1.1.2:
           api_key_ssm_param_name: "foo/bar/key"
           repo: "https://github.com/org/repo.git"
           sha: "abcdef..."
