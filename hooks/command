@@ -1,38 +1,40 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 record_deploy_time() {
-
   # Convert buildkite repo to url (git@github.com:org/repo.git -> https://github.com/org/repo.git)
-  tmp1=${BUILDKITE_REPO:-}
-  tmp2=${tmp1/:/\/}
-  repo_url=${tmp2/git@/https:\/\/}
-  
-  # user provided repo takes precendence over BUILDKITE_REPO
-  repo="${BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_REPO:-${repo_url:-}}"
+  local repo_url
+  repo_url="$(ensure_http_repository_url "$BUILDKITE_REPO")"
+
+  # user provided repo takes precedence over BUILDKITE_REPO
+  local repo="${BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_REPO:-${repo_url:-}}"
 
   # api can be provided, if it is not we try to retrieve from parameter store
-  api_key="${BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_API_KEY:-}"
-  
-  # git commit sha
-  sha="${BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_COMMIT:-${BUILDKITE_COMMIT:-}}"
+  local api_key="${BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_API_KEY:-}"
 
-  echo "--- :linearb: deploy time being recorded for repo: ${repo} sha: ${sha}"
+  # git commit sha
+  local sha="${BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_COMMIT:-${BUILDKITE_COMMIT:-}}"
+
+  echo "--- :linearb: recording deploy time"
+  echo "repo: ${repo} sha: ${sha}"
 
   # If the api key is provided use it, otherwise try to retrieve it from parameter store
-  if [ -z "$api_key" ]; then
+  if [[ -z "$api_key" ]]; then
     ssm_param_name=${BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_API_KEY_SSM_PARAM_NAME:-"/infrastructure/linearb-api-token"}
-    api_key=$(aws ssm get-parameter --with-decryption --name "$ssm_param_name" --query=Parameter.Value --output=text)
+    echo "No API key supplied, looking up from SSM '${ssm_param_name}'..."
+    api_key="$(aws ssm get-parameter --with-decryption --name "$ssm_param_name" --query=Parameter.Value --output=text)"
+    echo "Using API key from SSM: ${#api_key}"
   else
-    api_key=$BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_API_KEY
+    api_key="$BUILDKITE_PLUGIN_LINEARB_CYCLE_TIME_API_KEY"
+    echo "Using API key from step parameters: ${#api_key}"
   fi
 
   json=$(jq -n \
     --arg repo_url "$repo" \
     --arg sha "$sha" \
-    '{repo_url: $repo_url, ref_name: $sha}')  
+    '{repo_url: $repo_url, ref_name: $sha}')
 
-  echo "--- :linearb: request payload: ${json}"
+  echo "request payload: ${json}"
 
   status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null \
     -X POST "https://public-api.linearb.io/api/v1/deployments" \
@@ -42,11 +44,25 @@ record_deploy_time() {
   )
 
   if [[ $status_code -lt 200 ]] || [[ $status_code -gt 299 ]]; then
-    echo "--- :linearb: Deploy time recording failed with status code ${status_code}"
+    echo "^^^ +++"
+    echo "Deploy time recording failed with status code ${status_code}"
     exit 1
   fi
-  
-  echo "--- :linearb: deploy time recorded successfully. API request status code: ${status_code}"
+
+  echo "Deploy time recorded successfully. API request status code: ${status_code}"
+}
+
+ensure_http_repository_url() {
+  local repo_url="$1"
+
+  if [[ "${BUILDKITE_REPO}" = "git@"* ]]; then
+    # remove git@ ssh user prefix
+    repo_url="${repo_url/#git@/}"
+    # replace the colon path separator with a slash, and add the updated scheme
+    repo_url="https://${repo_url/://}"
+  fi
+
+  cat <<<"${repo_url}"
 }
 
 record_deploy_time
